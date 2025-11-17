@@ -1,0 +1,35 @@
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: search_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+      - search-net
+
+  redis:
+    image: redis:7
+    container_name: search_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - search-net
+
+  backend:
+    build: .
+    container_name: search_backend
+    depends_on:
+      - elasticsearch
+      - redis
+    ports:
+      - "3002:3002"
+    networks:
+      - search-net
+
+networks:
+  search-net:
